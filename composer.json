@@ -1,0 +1,16 @@
+{
+    "name": "joshuaeveleth/government-data",
+    "description": "Get government data before Trump destroys it",
+    "type": "project",
+    "require": {
+        "guzzlehttp/guzzle": "^6.2",
+        "guzzlehttp/oauth-subscriber": "0.3.*"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Josh Eveleth",
+            "email": "joshua.eveleth@gmail.com"
+        }
+    ]
+}
