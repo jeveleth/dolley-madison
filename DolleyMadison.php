@@ -1,7 +1,13 @@
 <?php
+namespace Government;
+
 require 'vendor/autoload.php';
+require 'Scraper.php';
 
 use GuzzleHttp\Client;
+use \Government\Scraper as Scraper;
+use Exception;
+
 /**
  * Use this script to fork all the GitHub repos of government organizations
  */
@@ -76,14 +82,40 @@ class DolleyMadison
             }
         }
     }
+
+    public function getNewScraper()
+    {
+        return new Scraper();
+    }
+
+    public function returnOrgs()
+    {
+        $gs = $this->getNewScraper();
+        return $gs->returnResultsArray();
+    }
+
+    public function execute()
+    {
+        $orgNames = $this->returnOrgs();
+
+        foreach($orgNames as $key => $value) {
+            foreach ($value as $orgName) {
+                $orgName = preg_replace('/@/', '', $orgName);
+                print "now forking $orgName\n";
+                try {
+                    $this->forkReposByOrg($orgName);
+                } catch(Exception $e) {
+                    print "Error getting $orgName: " . $e->getMessage() . "\n";
+                }
+            }
+        }
+    }
 }
 
-$gd = new GovernmentData();
-// TODO: Pull Names of all government entities with repos on github.
-// TODO: Create ReadMe
+$dm = new DolleyMadison();
+$results = $dm->execute();
+
+// TODO: Fix ReadMe
+// TODO: Autoloader
 // TODO: Error handling
-
-$orgNames = array('usinterior', 'GSA');
-foreach ($orgNames as $orgName) {
-    $gd->forkReposByOrg($orgName);
-}
+// TODO: Run script
