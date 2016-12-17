@@ -112,7 +112,6 @@ class DolleyMadison
 }
 
 $dm = new DolleyMadison();
-$results = $dm->returnOrgs();
-var_dump($results);
+$dm->execute();
 // TODO: Fix ReadMe
 // TODO: Run script
