@@ -3,7 +3,6 @@ namespace Government;
 
 require 'vendor/autoload.php';
 
-
 use Goutte\Client;
 
 /**

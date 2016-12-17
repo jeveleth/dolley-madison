@@ -2,7 +2,6 @@
 namespace Government;
 
 require 'vendor/autoload.php';
-require 'Scraper.php';
 
 use GuzzleHttp\Client;
 use \Government\Scraper as Scraper;
@@ -113,9 +112,7 @@ class DolleyMadison
 }
 
 $dm = new DolleyMadison();
-$results = $dm->execute();
-
+$results = $dm->returnOrgs();
+var_dump($results);
 // TODO: Fix ReadMe
-// TODO: Autoloader
-// TODO: Error handling
 // TODO: Run script

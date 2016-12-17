@@ -7,6 +7,9 @@
         "guzzlehttp/oauth-subscriber": "0.3.*",
         "fabpot/goutte": "^3.2"
     },
+    "autoload": {
+        "psr-4": {"Government\\": "src/"}
+    },
     "license": "MIT",
     "authors": [
         {
