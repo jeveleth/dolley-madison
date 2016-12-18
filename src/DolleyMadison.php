@@ -8,7 +8,7 @@ use \Government\Scraper as Scraper;
 use Exception;
 
 /**
- * Use this script to fork all the GitHub repos of government organizations
+ * Use this script to fork all the GitHub repos of U.S. government organizations
  */
 class DolleyMadison
 {
@@ -17,7 +17,7 @@ class DolleyMadison
     protected $baseUri = "https://api.github.com";
 
     /**
-     * constructor sets security keys to values set in envvars
+     * Constructor sets security keys to values set in envvars
      */
     public function __construct()
     {
@@ -26,18 +26,26 @@ class DolleyMadison
     }
 
     /**
-     * [getNewClient description]
-     * @return [type] [description]
+     * Loop through orgs; fork their repos
      */
-    public function getNewClient()
+    public function execute()
     {
-        return new Client();
+        $orgNames = $this->returnOrgs();
+        foreach ($orgNames as $orgName) {
+            $orgName = preg_replace('/@/', '', $orgName);
+            print "now forking repos for $orgName organization\n";
+            try {
+                $this->forkReposByOrg($orgName);
+            } catch(Exception $e) {
+                print "Error getting $orgName: " . $e->getMessage() . "\n";
+            }
+        }
     }
 
     /**
      * [getReposByOrg description]
-     * @param  [type] $orgName [description]
-     * @return [type]          [description]
+     * @param  string $orgName
+     * @return
      */
     public function getReposByOrg($orgName)
     {
@@ -82,36 +90,33 @@ class DolleyMadison
         }
     }
 
-    public function getNewScraper()
-    {
-        return new Scraper();
-    }
-
+    /**
+     * [returnOrgs description]
+     * @return [type] [description]
+     */
     public function returnOrgs()
     {
         $gs = $this->getNewScraper();
         return $gs->returnResultsArray();
     }
 
-    public function execute()
+    /**
+     * [getNewScraper description]
+     * @return [type] [description]
+     */
+    public function getNewScraper()
     {
-        $orgNames = $this->returnOrgs();
-
-        foreach($orgNames as $key => $value) {
-            foreach ($value as $orgName) {
-                $orgName = preg_replace('/@/', '', $orgName);
-                print "now forking $orgName\n";
-                try {
-                    $this->forkReposByOrg($orgName);
-                } catch(Exception $e) {
-                    print "Error getting $orgName: " . $e->getMessage() . "\n";
-                }
-            }
-        }
+        return new Scraper();
     }
-}
 
-$dm = new DolleyMadison();
-$dm->execute();
-// TODO: Fix ReadMe
-// TODO: Run script
+    /**
+     * [getNewClient description]
+     * @return [type] [description]
+     */
+    public function getNewClient()
+    {
+        return new Client();
+    }
+
+
+}

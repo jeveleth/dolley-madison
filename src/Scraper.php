@@ -4,6 +4,7 @@ namespace Government;
 require 'vendor/autoload.php';
 
 use Goutte\Client;
+use Exception;
 
 /**
 * Scraper is used to pull a list of all existing
@@ -12,16 +13,8 @@ use Goutte\Client;
 class Scraper
 {
     /**
-     * [getNewClient description]
-     * @return [type] [description]
-     */
-    public function getGoutteClient()
-    {
-        return new Client();
-    }
-    /**
-     * [crawlSite description]
-     * @param  [type] $url [description]
+     * crawl a site
+     * @param  string $url
      * @return [type]      [description]
      */
     public function crawlSite($url)
@@ -39,8 +32,17 @@ class Scraper
     public function returnResultsArray()
     {
         $results = $this->crawlSite('https://government.github.com/community/');
-        $pattern = "/\@\w+/";
+        $pattern = "/@(\w+-|\w+)+/";
         preg_match_all($pattern, (string) $results, $matches);
-        return $matches;
+        return $matches[0];
+    }
+
+    /**
+     *
+     * @return [type] [description]
+     */
+    public function getGoutteClient()
+    {
+        return new Client();
     }
 }
