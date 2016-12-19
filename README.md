@@ -1,5 +1,5 @@
-Here's a little repo to allow you to fork all U.S. government repos, on the off-chance the originals disappear in the next few years.
-If you have a git username and ouath key, you can fork the repos yourself using the DolleyMadison class.
+Here's a little repo to allow you to fork all U.S. government repos, just in case the originals disappear in the next few years.
+If you have a git username and ouath key, you can fork the repos yourself.
 
 To fork all of the repos:
 
@@ -13,3 +13,4 @@ TODOs:
 * Error Logging
 * Generally make it less dumb.
 * Update the docblocks
+* Better organization of classes.
