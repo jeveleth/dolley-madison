@@ -13,9 +13,9 @@ use Exception;
 class Scraper
 {
     /**
-     * crawl a site
+     * Crawl a site
      * @param  string $url
-     * @return [type]      [description]
+     * @return array
      */
     public function crawlSite($url)
     {
@@ -26,8 +26,8 @@ class Scraper
         return $children->text();
     }
     /**
-     * [returnResultsArray description]
-     * @return [type] [description]
+     * Return list of government orgs using GitHub
+     * @return array
      */
     public function returnResultsArray()
     {
@@ -39,7 +39,7 @@ class Scraper
 
     /**
      *
-     * @return [type] [description]
+     * @return Crawler instance
      */
     public function getGoutteClient()
     {

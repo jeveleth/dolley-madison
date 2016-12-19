@@ -43,9 +43,9 @@ class DolleyMadison
     }
 
     /**
-     * [getReposByOrg description]
+     * Get each org's repos
      * @param  string $orgName
-     * @return
+     * @return array
      */
     public function getReposByOrg($orgName)
     {
@@ -91,8 +91,8 @@ class DolleyMadison
     }
 
     /**
-     * [returnOrgs description]
-     * @return [type] [description]
+     * Return array of government orgs
+     * @return array
      */
     public function returnOrgs()
     {
@@ -101,8 +101,7 @@ class DolleyMadison
     }
 
     /**
-     * [getNewScraper description]
-     * @return [type] [description]
+     * Return instance of Scraper class
      */
     public function getNewScraper()
     {
@@ -110,8 +109,7 @@ class DolleyMadison
     }
 
     /**
-     * [getNewClient description]
-     * @return [type] [description]
+     * Return Guzzle client
      */
     public function getNewClient()
     {
