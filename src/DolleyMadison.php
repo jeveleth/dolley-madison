@@ -114,7 +114,7 @@ class DolleyMadison
                 $sha = $this->getUpstreamRepoMaster($orgName, $repo->name);
                 $masterFile[$repo->name]= $sha;
             } catch(\Exception $e) {
-                print "error getting master branch (one may not exist) {$e->getMessage()}\n";
+                print "Error getting master branch (one may not exist) {$e->getMessage()}\n";
             }
         }
 
@@ -146,9 +146,12 @@ class DolleyMadison
                 print "We need an adult to look at this.\n";
             }
         }
-        $elements = json_decode($res->getBody());
-        print "Returning Upstream sha from " . $elements->object->url . "\n";
-        return $elements->object->sha;
+
+        if (isset($res)) {
+            $elements = json_decode($res->getBody());
+            print "Returning Upstream sha from " . $elements->object->url . "\n";
+            return $elements->object->sha;
+        }
     }
 
     /**
