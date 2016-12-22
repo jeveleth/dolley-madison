@@ -22,7 +22,7 @@ class DolleyMadison
     public function __construct()
     {
         $this->username = getenv('GH_USERNAME'); // Your username
-        $this->oauthToken = getenv('GH_OUATH_KEY'); // Your ouath key
+        $this->oauthToken = getenv('GH_OAUTH_KEY'); // Your ouath key
     }
 
     /**
