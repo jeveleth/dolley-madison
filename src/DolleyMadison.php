@@ -131,10 +131,23 @@ class DolleyMadison
     {
         # GET /repos/:owner/:repo/git/refs/:ref
         $client = $this->getNewClient();
-        $res = $client->request('GET', "$this->baseUri/repos/$orgName/$repo/git/refs/heads/master", [
-            'auth' => [$this->username, $this->oauthToken]
-        ]);
+        try {
+            $res = $client->request('GET', "$this->baseUri/repos/$orgName/$repo/git/refs/heads/master", [
+                'auth' => [$this->username, $this->oauthToken]
+            ]);
+        } catch(\Exception $e) {
+            print "Error getting master branch for $orgName/$repo. Trying gh-pages. \n";
+            try {
+                $res = $client->request('GET', "$this->baseUri/repos/$orgName/$repo/git/refs/heads/gh-pages", [
+                    'auth' => [$this->username, $this->oauthToken]
+                ]);
+            } catch(\Exception $e) {
+                print "Error getting gh-branch. {$e->getMessage()}\n";
+                print "We need an adult to look at this.\n";
+            }
+        }
         $elements = json_decode($res->getBody());
+        print "Returning Upstream sha from " . $elements->object->url . "\n";
         return $elements->object->sha;
     }
 
