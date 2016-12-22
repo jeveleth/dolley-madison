@@ -7,10 +7,18 @@ To fork all of the repos:
 composer install
 php run.php
 ```
+
+To update your forked repos:
+```
+php run.php update
+```
+
+Note that this looks only for master branches upstream. If one doesn't exist, then the exception is caught and logged to STDOUT.
+
 TODOs:
-* Make a CLI client
 * Tests
-* Error Logging
+* Error Logging.
 * Generally make it less dumb.
-* Update the docblocks
+* DRY up the code.
+* Update the docblocks.
 * Better organization of classes.
