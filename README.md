@@ -29,3 +29,7 @@ TODOs:
 * DRY up the code.
 * Update the docblocks.
 * Better organization of classes.
+
+Requirements:
+* PHP 5.4 or greater (so you can use traits)
+* [Composer](https://getcomposer.org/)
