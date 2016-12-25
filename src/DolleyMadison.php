@@ -148,11 +148,9 @@ class DolleyMadison
         return json_decode($res->getBody());
     }
 
-    public function writeOrgRepoInfoToCsv($orgName, $fork, $url)
+    public function writeOrgRepoInfoToCsv($fp, $orgName, $fork, $url)
     {
-        $fp = fopen('orgInfo.csv', 'a');
         fputcsv($fp, array($orgName, $fork, $url, date('y-m-d')));
-        fclose($fp);
     }
 
     /**
@@ -175,14 +173,16 @@ class DolleyMadison
      */
     public function forkReposByOrg($orgName)
     {
+        $fp = fopen('orgInfo.csv', 'a');
         $repos = $this->getReposByOrg($orgName);
         foreach ($repos as $key => $value) {
             if ($value->name) {
                 echo "forking $value->name \n";
                 $this->postRepoForks($orgName, $value->name);
-                $this->writeOrgRepoInfoToCsv($orgName, $value->url, $value->name);
+                $this->writeOrgRepoInfoToCsv($fp, $orgName, $value->url, $value->name);
             }
         }
+        fclose($fp);
     }
 
     /**
