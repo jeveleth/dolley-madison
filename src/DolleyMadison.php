@@ -12,10 +12,11 @@ use Exception;
  */
 class DolleyMadison
 {
+    use HelperTrait;
+
     protected $username = '';
     protected $oauthToken = '';
     protected $baseUri = "https://api.github.com";
-
     /**
      * Constructor sets security keys to values set in envvars
      */
@@ -32,8 +33,8 @@ class DolleyMadison
     {
         $orgNames = $this->returnOrgs();
         foreach ($orgNames as $orgName) {
-            $orgName = preg_replace('/@/', '', $orgName);
-            print "now forking repos for $orgName organization\n";
+            $orgName = $this->fixOrgName($orgName);
+            print "Now forking repos for $orgName organization\n";
             try {
                 $this->forkReposByOrg($orgName);
             } catch(Exception $e) {
@@ -61,63 +62,63 @@ class DolleyMadison
      */
     public function updateForkWithMaster($reposWithPatches)
     {
-        $client = $this->getNewClient();
         foreach ($reposWithPatches as $repo => $ref) {
             $body = array(
                 "sha" => $ref,
                 "force" => true
             );
-            $res = $client->request('PATCH', "$this->baseUri/repos/$this->username/$repo/git/refs/heads/master", [
-                'json' => ['sha' => $ref],
-                'auth' => [$this->username, $this->oauthToken]
-            ]);
+
+            $postData = array('json' => ['sha' => $ref]);
+
+            $res = $this->doAGitHubRequest(
+                "PATCH",
+                "repos/$this->username/$repo/git/refs/heads/master",
+                $postData
+            );
             echo "Response is " . json_decode($res->getStatusCode()) . " \n";
         }
     }
 
-    public function flattenArrayOfRepos($reposWithPatches)
-    {
-        $flattenedArray = array();
-
-        foreach ($reposWithPatches as $datum) {
-            if (is_array($datum)) {
-                foreach($datum as $key => $value) {
-                    print "$key is $value\n";
-                    $flattenedArray[$key] = $value;
-                }
-            }
-        }
-        return $flattenedArray;
-    }
-
+    /**
+     * [getAllReposToUpdate description]
+     * @return [type] [description]
+     */
     public function getAllReposToUpdate()
     {
         $orgNames = $this->returnOrgs();
         $reposWithPatches = array();
 
         foreach ($orgNames as $orgName) {
-            $orgName = preg_replace('/@/', '', $orgName);
+            $orgName = $this->fixOrgName($orgName);
             $results = $this->gatherMasterRepoInfo($orgName);
             $reposWithPatches[]= $results;
         }
         return $reposWithPatches;
     }
 
+    /**
+     * Collect and return array of orgs with repos
+     * @param  string $orgName
+     * @return array
+     */
     public function gatherMasterRepoInfo($orgName)
     {
         $repos = $this->getReposByOrg($orgName);
 
         $masterFile = array();
 
+        $fp = fopen('orgInfo.csv', 'a');
+
         foreach ($repos as $repo) {
             try {
                 $sha = $this->getUpstreamRepoMaster($orgName, $repo->name);
+                $this->writeOrgRepoInfoToCsv($fp, $orgName, $repo->url, $repo->name);
                 $masterFile[$repo->name]= $sha;
             } catch(\Exception $e) {
                 print "Error getting master branch (one may not exist) {$e->getMessage()}\n";
             }
         }
-
+        fclose($fp);
         return $masterFile;
     }
 
@@ -129,18 +130,12 @@ class DolleyMadison
      */
     public function getUpstreamRepoMaster($orgName, $repo)
     {
-        # GET /repos/:owner/:repo/git/refs/:ref
-        $client = $this->getNewClient();
         try {
-            $res = $client->request('GET', "$this->baseUri/repos/$orgName/$repo/git/refs/heads/master", [
-                'auth' => [$this->username, $this->oauthToken]
-            ]);
+            $res = $this->doAGitHubRequest("GET", "repos/$orgName/$repo/git/refs/heads/master");
         } catch(\Exception $e) {
             print "Error getting master branch for $orgName/$repo. Trying gh-pages. \n";
             try {
-                $res = $client->request('GET', "$this->baseUri/repos/$orgName/$repo/git/refs/heads/gh-pages", [
-                    'auth' => [$this->username, $this->oauthToken]
-                ]);
+                $res = $this->doAGitHubRequest("GET", "repos/$orgName/$repo/git/refs/heads/gh-pages");
             } catch(\Exception $e) {
                 print "Error getting gh-branch. {$e->getMessage()}\n";
                 print "We need an adult to look at this.\n";
@@ -161,13 +156,13 @@ class DolleyMadison
      */
     public function getReposByOrg($orgName)
     {
-        $client = $this->getNewClient();
-        $res = $client->request('GET', "$this->baseUri/orgs/$orgName/repos", [
-            'auth' => [$this->username, $this->oauthToken]
-        ]);
-        $elements = json_decode($res->getBody());
+        $res = $this->doAGitHubRequest("GET", "orgs/$orgName/repos");
+        return json_decode($res->getBody());
+    }
 
-        return $elements;
+    public function writeOrgRepoInfoToCsv($fp, $orgName, $fork, $url)
+    {
+        fputcsv($fp, array($orgName, $fork, $url, $this->getCurrentDate()));
     }
 
     /**
@@ -178,10 +173,7 @@ class DolleyMadison
      */
     public function postRepoForks($orgName, $repo)
     {
-        $client = $this->getNewClient();
-        $res = $client->request('POST', "$this->baseUri/repos/$orgName/$repo/forks", [
-            'auth' => [$this->username, $this->oauthToken]
-        ]);
+        $res = $this->doAGitHubRequest("POST", "repos/$orgName/$repo/forks");
         $elements = json_decode($res->getStatusCode());
         return "Status is $elements\n";
     }
@@ -193,13 +185,16 @@ class DolleyMadison
      */
     public function forkReposByOrg($orgName)
     {
+        $fp = fopen('orgInfo.csv', 'a');
         $repos = $this->getReposByOrg($orgName);
         foreach ($repos as $key => $value) {
             if ($value->name) {
                 echo "forking $value->name \n";
                 $this->postRepoForks($orgName, $value->name);
+                $this->writeOrgRepoInfoToCsv($fp, $orgName, $value->url, $value->name);
             }
         }
+        fclose($fp);
     }
 
     /**
@@ -220,13 +215,9 @@ class DolleyMadison
         return new Scraper();
     }
 
-    /**
-     * Return Guzzle client
-     */
-    public function getNewClient()
+    public function fixOrgName($orgName)
     {
-        return new Client();
+        return preg_replace('/@/', '', $orgName);
     }
-
 
 }
