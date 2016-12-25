@@ -34,7 +34,7 @@ class DolleyMadison
         $orgNames = $this->returnOrgs();
         foreach ($orgNames as $orgName) {
             $orgName = $this->fixOrgName($orgName);
-            print "now forking repos for $orgName organization\n";
+            print "Now forking repos for $orgName organization\n";
             try {
                 $this->forkReposByOrg($orgName);
             } catch(Exception $e) {
@@ -79,6 +79,10 @@ class DolleyMadison
         }
     }
 
+    /**
+     * [getAllReposToUpdate description]
+     * @return [type] [description]
+     */
     public function getAllReposToUpdate()
     {
         $orgNames = $this->returnOrgs();
@@ -92,21 +96,29 @@ class DolleyMadison
         return $reposWithPatches;
     }
 
+    /**
+     * Collect and return array of orgs with repos
+     * @param  string $orgName
+     * @return array
+     */
     public function gatherMasterRepoInfo($orgName)
     {
         $repos = $this->getReposByOrg($orgName);
 
         $masterFile = array();
 
+        $fp = fopen('orgInfo.csv', 'a');
+
         foreach ($repos as $repo) {
             try {
                 $sha = $this->getUpstreamRepoMaster($orgName, $repo->name);
+                $this->writeOrgRepoInfoToCsv($fp, $orgName, $repo->url, $repo->name);
                 $masterFile[$repo->name]= $sha;
             } catch(\Exception $e) {
                 print "Error getting master branch (one may not exist) {$e->getMessage()}\n";
             }
         }
-
+        fclose($fp);
         return $masterFile;
     }
 
@@ -207,7 +219,5 @@ class DolleyMadison
     {
         return preg_replace('/@/', '', $orgName);
     }
-
-
 
 }

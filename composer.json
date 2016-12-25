@@ -1,11 +1,12 @@
 {
     "name": "joshuaeveleth/government-data",
-    "description": "Get government data before Trump destroys it",
+    "description": "Get government data before donald dumps it",
     "type": "project",
     "require": {
         "guzzlehttp/guzzle": "^6.2",
         "guzzlehttp/oauth-subscriber": "0.3.*",
-        "fabpot/goutte": "^3.2"
+        "fabpot/goutte": "^3.2",
+        "phpunit/phpunit": "5.5.*"
     },
     "autoload": {
         "psr-4": {"Government\\": "src/"}
