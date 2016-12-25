@@ -162,7 +162,7 @@ class DolleyMadison
 
     public function writeOrgRepoInfoToCsv($fp, $orgName, $fork, $url)
     {
-        fputcsv($fp, array($orgName, $fork, $url, date('y-m-d')));
+        fputcsv($fp, array($orgName, $fork, $url, $this->getCurrentDate()));
     }
 
     /**

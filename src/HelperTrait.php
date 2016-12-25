@@ -8,7 +8,7 @@ trait HelperTrait {
     function getCurrentDate()
     {
         date_default_timezone_set('UTC');
-        echo date('y-m-d');
+        return date('y-m-d');
     }
 
     function flattenArrayOfRepos($reposWithPatches)
